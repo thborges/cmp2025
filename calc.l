@@ -24,9 +24,20 @@ int errorcount = 0;
 ";"                     { return ';'; }
 "="                     { return '='; }
 
-[0-9]+                  { return TOK_INT; }
-[0-9]+\.[0-9]+          { return TOK_FLT; }
-[a-zA-Z_][a-zA-Z_0-9]*  { return TOK_IDENT; }
+[0-9]+ {
+    yylval.integer = atoi(yytext);
+    return TOK_INT;
+}
+
+[0-9]+\.[0-9]+ {
+    yylval.flt = atof(yytext);
+    return TOK_FLT;
+}
+
+[a-zA-Z_][a-zA-Z_0-9]* {
+    yylval.name = strndup(yytext, yyleng);
+    return TOK_IDENT;
+}
 
 .                       { printf("Caractere não presente no alfabeto %c\n", yytext[0] ); }
 

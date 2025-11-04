@@ -1,5 +1,6 @@
 
 %{
+#include "nodes.h"
 int yyerror(const char *s);
 int yylex (void);
 %}
@@ -9,6 +10,12 @@ int yylex (void);
 %token TOK_PRINT TOK_INT TOK_FLT TOK_IDENT
 
 %start program
+
+%union {
+   int integer;
+   float flt;
+   char *name;
+}
 
 %%
 
