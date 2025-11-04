@@ -1,11 +1,14 @@
 %{
 #include <stdio.h>
 
+class Node;
+
 #include "calc.tab.h"
 int yyerror(const char *s);
 
 char *build_file_name;
 int errorcount = 0;
+
 %}
 
 %option yylineno

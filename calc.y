@@ -7,7 +7,12 @@ int yylex (void);
 
 %define parse.error verbose
 
-%token TOK_PRINT TOK_INT TOK_FLT TOK_IDENT
+%token TOK_PRINT
+%token<integer> TOK_INT
+%token<flt> TOK_FLT
+%token<name> TOK_IDENT
+
+%type<node> factor term expr
 
 %start program
 
@@ -15,6 +20,7 @@ int yylex (void);
    int integer;
    float flt;
    char *name;
+   Node *node;
 }
 
 %%
@@ -29,20 +35,45 @@ stmt : TOK_IDENT '=' expr ';'
      | TOK_PRINT expr ';'
      ;
 
-expr : expr '+' term
-     | expr '-' term
-     | term
-     ;
+expr : expr[e1] '+' term {
+    $$ = new BinaryOp($e1, '+', $term);
+}
 
-term : term '*' factor
-     | term '/' factor
-     | factor
-     ;
+expr : expr[e1] '-' term {
+    $$ = new BinaryOp($e1, '-', $term);
+}
 
-factor : '(' expr ')'
-       | TOK_INT
-       | TOK_FLT
-       ;
+expr : term {
+    $$ = $term;
+}
+
+term : term[t1] '*' factor {
+    $$ = new BinaryOp($t1, '*', $factor);
+}
+
+term : term[t1] '/' factor {
+    $$ = new BinaryOp($t1, '/', $factor);
+}
+
+term : factor {
+    $$ = $factor;
+}
+
+factor : '(' expr ')' {
+    $$ = $expr;
+}
+
+factor : TOK_INT[integer] {
+    $$ = new ConstInteger($integer);
+}
+
+factor : TOK_FLT[flt] {
+    $$ = new ConstDouble($flt);
+}
+
+factor : TOK_IDENT[id] {
+    $$ = new Load($id);
+}
 
 %%
 
