@@ -1,10 +1,13 @@
 
 #include<vector>
 #include<string>
+#include<iostream>
 
 extern int yylineno;
 
 using namespace std;
+
+class Program;
 
 class Node {
 protected:
@@ -23,6 +26,12 @@ public:
     void append(Node *n) {
         children.push_back(n);
     }
+
+    virtual string astLabel() {
+        return "";
+    }
+
+    friend class Program;
 };
 
 class Load: public Node {
@@ -31,6 +40,10 @@ protected:
 public:
     Load(string name) {
         this->name = name;
+    }
+
+    string astLabel() override {
+        return name;
     }
 };
 
@@ -42,6 +55,13 @@ public:
         this->name = name;
         this->append(expr);
     }
+
+    string astLabel() override {
+        string r;
+        r.append("store ");
+        r.append(name);
+        return r; 
+    }
 };
 
 class ConstInteger: public Node {
@@ -51,6 +71,10 @@ public:
     ConstInteger(int value) {
         this->value = value;
     }
+
+    string astLabel() override {
+        return to_string(value);
+    }
 };
 
 class ConstDouble: public Node {
@@ -59,6 +83,10 @@ protected:
 public:
     ConstDouble(double value) {
         this->value = value;
+    }
+
+    string astLabel() override {
+        return to_string(value);
     }
 };
 
@@ -71,6 +99,12 @@ public:
         this->append(left);
         this->append(right);
     }
+
+    string astLabel() override {
+        string r;
+        r.push_back(oper);
+        return r;
+    }
 };
 
 class Print: public Node {
@@ -78,6 +112,13 @@ protected:
 public:
     Print(Node *expr) {
         this->append(expr);
+    }
+
+    string astLabel() override {
+        string r;
+        r.append("print ");
+        r.append(children[0]->astLabel());
+        return r;
     }
 };
 
@@ -87,12 +128,48 @@ public:
     Stmts(Node *expr) {
         this->append(expr);
     }
+
+    string astLabel() override {
+        return "stmts";
+    }
 };
 
 class Program: public Node {
+protected:
+    void printAstRecursive(Node *n) {
+        
+        // declara o nó da árvore no graph
+        cout << "N" << (long)(n) <<
+                "[label=\"" << n->astLabel() << "\"]" <<
+                "\n";
+
+        for(Node *c : n->children) {
+            cout << "N" << (long)(n) << "--" <<
+                    "N" << (long)(c) << "\n";
+            printAstRecursive(c);
+        }
+        
+    }
+
 public:
     Program(Node *stmts) {
         this->append(stmts);
+    }
+
+    void printAst() {
+        cout << "graph {\n";
+        cout << "N" << (long)(this) 
+             << "[label=\"Program\"]\n";
+        cout << "N" << (long)(this) << " -- " 
+             << "N" << (long)(children[0])
+             << "\n";
+
+        printAstRecursive(children[0]);
+        cout << "}\n";
+    }
+
+    string astLabel() override {
+        return "program";
     }
 };
 

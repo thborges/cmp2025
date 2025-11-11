@@ -27,7 +27,7 @@ int yylex (void);
 
 program : stmts {
     Program pg($stmts);
-    //pg->printAst();
+    pg.printAst();
 }
 
 stmts : stmts[ss] stmt {
