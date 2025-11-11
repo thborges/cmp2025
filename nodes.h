@@ -38,8 +38,9 @@ class Store: public Node {
 protected:
     string name;
 public:
-    Store(string name) {
+    Store(string name, Node *expr) {
         this->name = name;
+        this->append(expr);
     }
 };
 
@@ -69,6 +70,29 @@ public:
         this->oper = oper;
         this->append(left);
         this->append(right);
+    }
+};
+
+class Print: public Node {
+protected:
+public:
+    Print(Node *expr) {
+        this->append(expr);
+    }
+};
+
+class Stmts: public Node {
+protected:
+public:
+    Stmts(Node *expr) {
+        this->append(expr);
+    }
+};
+
+class Program: public Node {
+public:
+    Program(Node *stmts) {
+        this->append(stmts);
     }
 };
 

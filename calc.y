@@ -12,7 +12,7 @@ int yylex (void);
 %token<flt> TOK_FLT
 %token<name> TOK_IDENT
 
-%type<node> factor term expr
+%type<node> factor term expr stmt stmts program
 
 %start program
 
@@ -25,15 +25,27 @@ int yylex (void);
 
 %%
 
-program : stmts ;
+program : stmts {
+    Program pg($stmts);
+    //pg->printAst();
+}
 
-stmts : stmts stmt
-      | stmt
-      ;
+stmts : stmts[ss] stmt {
+    $ss->append($stmt);
+    $$ = $ss;
+}
 
-stmt : TOK_IDENT '=' expr ';'
-     | TOK_PRINT expr ';'
-     ;
+stmts : stmt {
+    $$ = new Stmts($stmt);
+}
+
+stmt : TOK_IDENT[id] '=' expr[e] ';' {
+    $$ = new Store($id, $e);
+}
+
+stmt : TOK_PRINT expr[e] ';' {
+    $$ = new Print($e);
+}
 
 expr : expr[e1] '+' term {
     $$ = new BinaryOp($e1, '+', $term);
